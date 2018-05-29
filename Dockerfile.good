@@ -1,0 +1,30 @@
+###################
+### stage 1 - build
+FROM alpine:3.7 AS build
+LABEL MAINTAINER="Matt Bentley <mbentley@mbentley.net>"
+
+# install gcc & libc-dev (do not include things I do not need)
+RUN apk --no-cache add gcc libc-dev
+
+# add my hello.c file so I can build my app
+COPY hello.c /hello.c
+
+# compile my app
+RUN gcc -Wall hello.c -o hello
+
+#####################
+### stage 2 - runtime
+FROM alpine:3.7
+LABEL MAINTAINER="Matt Bentley <mbentley@mbentley.net>" APPNAME=hello APPVERSION=0.1
+
+# add a non-root user to run as
+RUN adduser -D -H foo
+
+# copy my compiled binary from my build stage, setting the owner/group as 'foo:foo'
+COPY --chown=foo:foo --from=build /hello /hello
+
+# set the default user/group of 'foo:foo' to run as
+USER foo:foo
+
+# run my compiled app
+CMD ["/hello"]

@@ -1,0 +1,27 @@
+FROM alpine
+MAINTAINER Matt Bentley <mbentley@mbentley.net>
+
+# add labels to describe my app
+LABEL APPNAME=hello
+LABEL APPVERSION=0.1
+
+# add my hello.c file so I can build my app
+COPY hello.c /hello.c
+
+# update the package index
+RUN apk update
+
+# install gcc
+RUN apk add gcc
+
+# install libc-dev
+RUN apk add libc-dev
+
+# install my text editors
+RUN apk add vim nano
+
+# compile my app
+RUN gcc -Wall hello.c -o hello
+
+# run my compiled app
+CMD ["/hello"]
