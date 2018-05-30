@@ -1,0 +1,26 @@
+FROM alpine:3.7 AS build
+
+# add labels to describe my app
+LABEL MAINTAINER="Matt Bentley <mbentley@mbentley.net>" APPNAME=hello APPVERSION=0.1
+
+# update the package index
+RUN apk --no-cache add gcc libc-dev
+
+# add my hello.c file so I can build my app
+COPY hello.c /hello.c
+
+# compile my app
+RUN gcc -Wall hello.c -o hello
+
+###################
+
+FROM alpine:3.7
+
+# add labels to describe my app
+LABEL MAINTAINER="Matt Bentley <mbentley@mbentley.net>" APPNAME=hello APPVERSION=0.1
+
+# grab binary from multi-stage build
+COPY --from=build /hello /hello
+
+# run my compiled app
+CMD ["/hello"]
